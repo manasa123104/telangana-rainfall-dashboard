@@ -89,12 +89,8 @@ export function StationMap({ stations, selected, onSelect }: StationMapProps) {
               fillOpacity={active ? 0.9 : 0.55}
               stroke={active ? "#8a5a12" : "#0f4c5c"}
               strokeWidth={active ? 2 : 1}
-            >
-              <title>
-                {station.name} · {station.district} ·{" "}
-                {formatRain(station.totalRainfall)}
-              </title>
-            </circle>
+              aria-label={`${station.name}, ${station.district}, ${formatRain(station.totalRainfall)}`}
+            />
             {active ? (
               <text
                 x={x}
