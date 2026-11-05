@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { CloudRain, Droplets, MapPinned, RadioTower } from "lucide-react";
+import { ChartPanel } from "@/components/chart-panel";
 import {
   DistrictBarChart,
   HourlyPatternChart,
@@ -45,16 +46,19 @@ export function Dashboard() {
   const stationsForDistrict = useMemo(() => {
     return allStations
       .filter((s) => (district === "all" ? true : s.district === district))
-      .map((s) => s.name)
-      .sort((a, b) => a.localeCompare(b));
+      .map((s) => ({ id: s.id, name: s.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [district]);
 
   const filteredStations = useMemo(() => {
-    return allStations.filter((s) => {
-      if (district !== "all" && s.district !== district) return false;
-      if (station !== "all" && s.id !== station) return false;
-      return true;
-    });
+    return allStations
+      .filter((s) => {
+        if (district !== "all" && s.district !== district) return false;
+        if (station !== "all" && s.id !== station) return false;
+        return true;
+      })
+      .slice()
+      .sort((a, b) => b.totalRainfall - a.totalRainfall);
   }, [district, station]);
 
   const trendSeries = useMemo(() => {
@@ -73,11 +77,13 @@ export function Dashboard() {
     return allDistricts
       .map((d) => ({
         label: d.name.length > 14 ? `${d.name.slice(0, 13)}…` : d.name,
+        fullLabel: d.name,
         rainfall: sumRain(filterMonths(d.monthly, year)),
       }))
       .filter((d) => d.rainfall > 0)
       .sort((a, b) => b.rainfall - a.rainfall)
-      .slice(0, 12);
+      .slice(0, 12)
+      .map(({ label, rainfall }) => ({ label, rainfall }));
   }, [year]);
 
   const yearBars = useMemo(() => {
@@ -127,7 +133,7 @@ export function Dashboard() {
   const topStation = filteredStations[0];
   const scopeLabel =
     station !== "all"
-      ? station
+      ? allStations.find((s) => s.id === station)?.name ?? station
       : district !== "all"
         ? district
         : "Telangana SW network";
@@ -188,14 +194,14 @@ export function Dashboard() {
       </section>
 
       <section className="panel-grid">
-        <article className="panel panel-wide">
-          <div className="panel-head">
-            <div>
-              <h2>Monthly rainfall trend</h2>
-              <p>Cumulative mm by month for the current scope.</p>
-            </div>
-            <CloudRain className="panel-icon" aria-hidden />
-          </div>
+        <ChartPanel
+          wide
+          title="Monthly rainfall trend"
+          description="Cumulative mm by month for the current scope."
+          filename="rainfall-monthly-trend.png"
+          icon={<CloudRain className="panel-icon" aria-hidden />}
+          canDownload={trendSeries.length > 0}
+        >
           <div className="chart-frame chart-tall">
             {trendSeries.length ? (
               <RainfallTrendChart data={trendSeries} />
@@ -203,16 +209,15 @@ export function Dashboard() {
               <EmptyState message="No monthly readings for this filter set." />
             )}
           </div>
-        </article>
+        </ChartPanel>
 
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Year comparison</h2>
-              <p>Total rainfall by calendar year.</p>
-            </div>
-            <Droplets className="panel-icon" aria-hidden />
-          </div>
+        <ChartPanel
+          title="Year comparison"
+          description="Total rainfall by calendar year."
+          filename="rainfall-year-comparison.png"
+          icon={<Droplets className="panel-icon" aria-hidden />}
+          canDownload={yearBars.length > 0}
+        >
           <div className="chart-frame">
             {yearBars.length ? (
               <YearCompareChart data={yearBars} />
@@ -220,28 +225,31 @@ export function Dashboard() {
               <EmptyState message="No yearly totals available." />
             )}
           </div>
-        </article>
+        </ChartPanel>
 
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Hour-of-day pattern</h2>
-              <p>Average hourly rainfall across all readings.</p>
-            </div>
-            <RadioTower className="panel-icon" aria-hidden />
-          </div>
+        <ChartPanel
+          title="Hour-of-day pattern"
+          description="Average hourly rainfall across all readings."
+          filename="rainfall-hour-of-day.png"
+          icon={<RadioTower className="panel-icon" aria-hidden />}
+          canDownload={hourly.length > 0}
+        >
           <div className="chart-frame">
-            <HourlyPatternChart data={hourly} />
+            {hourly.length ? (
+              <HourlyPatternChart data={hourly} />
+            ) : (
+              <EmptyState message="No hourly pattern available." />
+            )}
           </div>
-        </article>
+        </ChartPanel>
 
-        <article className="panel panel-wide">
-          <div className="panel-head">
-            <div>
-              <h2>District totals</h2>
-              <p>Top districts by cumulative rainfall{year !== "all" ? ` in ${year}` : ""}.</p>
-            </div>
-          </div>
+        <ChartPanel
+          wide
+          title="District totals"
+          description={`Top districts by cumulative rainfall${year !== "all" ? ` in ${year}` : ""}.`}
+          filename="rainfall-district-totals.png"
+          canDownload={districtBars.length > 0}
+        >
           <div className="chart-frame chart-tall">
             {districtBars.length ? (
               <DistrictBarChart data={districtBars} />
@@ -249,16 +257,16 @@ export function Dashboard() {
               <EmptyState message="No district totals for this year." />
             )}
           </div>
-        </article>
+        </ChartPanel>
 
-        <article className="panel panel-wide">
-          <div className="panel-head">
-            <div>
-              <h2>Station map</h2>
-              <p>Click a marker to focus that station.</p>
-            </div>
-            <MapPinned className="panel-icon" aria-hidden />
-          </div>
+        <ChartPanel
+          wide
+          title="Station map"
+          description="Click a marker to focus that station."
+          filename="rainfall-station-map.png"
+          icon={<MapPinned className="panel-icon" aria-hidden />}
+          canDownload={filteredStations.length > 0}
+        >
           <div className="chart-frame chart-map">
             <StationMap
               stations={filteredStations}
@@ -274,7 +282,7 @@ export function Dashboard() {
               }
             />
           </div>
-        </article>
+        </ChartPanel>
 
         <article className="panel panel-wide">
           <div className="panel-head">

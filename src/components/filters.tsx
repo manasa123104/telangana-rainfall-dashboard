@@ -1,9 +1,11 @@
 "use client";
 
+type StationOption = { id: string; name: string };
+
 type FiltersProps = {
   years: string[];
   districts: string[];
-  stations: string[];
+  stations: StationOption[];
   year: string;
   district: string;
   station: string;
@@ -58,8 +60,8 @@ export function Filters({
         >
           <option value="all">All stations</option>
           {stations.map((s) => (
-            <option key={s} value={s}>
-              {s}
+            <option key={s.id} value={s.id}>
+              {s.name}
             </option>
           ))}
         </select>
