@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type Size = { width: number; height: number };
 
-const FALLBACK: Size = { width: 600, height: 280 };
-const MEASURE_TIMEOUT_MS = 120;
+const FALLBACK: Size = { width: 640, height: 280 };
 
 function readSize(node: HTMLElement): Size {
   const rect = node.getBoundingClientRect();
@@ -33,45 +32,38 @@ function readSize(node: HTMLElement): Size {
 
 /**
  * Measure an element with a callback ref + ResizeObserver.
- * Always settles to a usable size quickly via rAF retries and a fallback.
+ * Always starts with a usable fallback size so charts never mount blank;
+ * ResizeObserver only upgrades to the real measured size.
  */
 export function useElementSize<T extends HTMLElement = HTMLDivElement>(
   fallback: Size = FALLBACK,
 ) {
-  const [size, setSize] = useState<Size>({ width: 0, height: 0 });
-  const [ready, setReady] = useState(false);
+  const [size, setSize] = useState<Size>(fallback);
   const observerRef = useRef<ResizeObserver | null>(null);
   const nodeRef = useRef<T | null>(null);
   const rafRef = useRef<number | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallbackRef = useRef(fallback);
+  fallbackRef.current = fallback;
 
-  const commit = useCallback(
-    (next: Size, forceFallback = false) => {
-      const width = next.width > 0 ? next.width : forceFallback ? fallback.width : 0;
-      const height =
-        next.height > 0 ? next.height : forceFallback ? fallback.height : 0;
-      if (width <= 0 || height <= 0) return;
-      setSize((prev) =>
-        prev.width === width && prev.height === height
-          ? prev
-          : { width, height },
-      );
-      setReady(true);
-    },
-    [fallback.height, fallback.width],
-  );
+  const commit = useCallback((next: Size) => {
+    const fb = fallbackRef.current;
+    const width = next.width > 0 ? next.width : fb.width;
+    const height = next.height > 0 ? next.height : fb.height;
+    setSize((prev) =>
+      prev.width === width && prev.height === height
+        ? prev
+        : { width, height },
+    );
+  }, []);
 
-  const measure = useCallback(
-    (forceFallback = false) => {
-      const node = nodeRef.current;
-      if (!node) {
-        if (forceFallback) commit(fallback, true);
-        return;
-      }
-      commit(readSize(node), forceFallback);
-    },
-    [commit, fallback],
-  );
+  const measure = useCallback(() => {
+    const node = nodeRef.current;
+    if (!node) {
+      commit(fallbackRef.current);
+      return;
+    }
+    commit(readSize(node));
+  }, [commit]);
 
   const ref = useCallback(
     (node: T | null) => {
@@ -83,26 +75,17 @@ export function useElementSize<T extends HTMLElement = HTMLDivElement>(
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      if (timeoutRef.current != null) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
 
       nodeRef.current = node;
       if (!node) return;
 
-      measure(false);
+      // Immediate measure (or parent/fallback) so Recharts never waits.
+      measure();
 
-      // Layout may not be final on the first paint — retry next frames.
       rafRef.current = requestAnimationFrame(() => {
-        measure(false);
-        rafRef.current = requestAnimationFrame(() => measure(false));
+        measure();
+        rafRef.current = requestAnimationFrame(() => measure());
       });
-
-      // Never leave charts stuck measuring.
-      timeoutRef.current = setTimeout(() => {
-        measure(true);
-      }, MEASURE_TIMEOUT_MS);
 
       if (typeof ResizeObserver !== "undefined") {
         const observer = new ResizeObserver((entries) => {
@@ -113,17 +96,15 @@ export function useElementSize<T extends HTMLElement = HTMLDivElement>(
             width: Math.round(box.width),
             height: Math.round(box.height),
           };
+          // Only upgrade when we have a real positive size.
           if (fromEntry.width > 0 && fromEntry.height > 0) {
             commit(fromEntry);
             return;
           }
-          measure(false);
+          measure();
         });
         observer.observe(node);
         observerRef.current = observer;
-      } else {
-        // Environments without ResizeObserver still get a usable chart.
-        measure(true);
       }
     },
     [commit, measure],
@@ -133,14 +114,12 @@ export function useElementSize<T extends HTMLElement = HTMLDivElement>(
     return () => {
       if (observerRef.current) observerRef.current.disconnect();
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-      if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
     };
   }, []);
 
   return {
     ref,
-    width: ready ? size.width || fallback.width : size.width,
-    height: ready ? size.height || fallback.height : size.height,
-    ready,
+    width: size.width > 0 ? size.width : fallback.width,
+    height: size.height > 0 ? size.height : fallback.height,
   };
 }

@@ -25,7 +25,7 @@ const tooltipStyle = {
 
 type SeriesPoint = { label: string; rainfall: number };
 
-const DEFAULT_CHART_SIZE = { width: 600, height: 280 };
+const DEFAULT_CHART_SIZE = { width: 640, height: 280 };
 
 function ChartViewport({
   children,
@@ -35,12 +35,14 @@ function ChartViewport({
   const { ref, width, height } = useElementSize<HTMLDivElement>(
     DEFAULT_CHART_SIZE,
   );
-  // Always mount Recharts: use measured size when available, else fallback.
+  // Never gate on measurement: always mount Recharts with a usable size.
+  // ResizeObserver upgrades width/height after layout; until then use
+  // parent-derived or 640×280 fallback so panels never stick blank.
   const w = width > 0 ? width : DEFAULT_CHART_SIZE.width;
   const h = height > 0 ? height : DEFAULT_CHART_SIZE.height;
 
   return (
-    <div ref={ref} className="chart-viewport">
+    <div ref={ref} className="chart-viewport" data-chart-ready="true">
       {children({ width: w, height: h })}
     </div>
   );
