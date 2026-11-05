@@ -31,9 +31,17 @@ function ChartViewport({
   children: (size: { width: number; height: number }) => ReactNode;
 }) {
   const { ref, width, height } = useElementSize<HTMLDivElement>();
+  const ready = width > 0 && height > 0;
   return (
     <div ref={ref} className="chart-viewport">
-      {width > 0 && height > 0 ? children({ width, height }) : null}
+      {ready ? (
+        children({ width, height })
+      ) : (
+        <div className="chart-loading" role="status" aria-live="polite">
+          <span className="chart-loading-bar" aria-hidden />
+          <span>Measuring chart…</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -220,6 +228,122 @@ export function YearCompareChart({
             dataKey="rainfall"
             fill="#0f4c5c"
             radius={[8, 8, 0, 0]}
+            animationDuration={750}
+          />
+        </BarChart>
+      )}
+    </ChartViewport>
+  );
+}
+
+export function DailySparklineChart({
+  data,
+}: {
+  data: { label: string; rainfall: number }[];
+}) {
+  return (
+    <ChartViewport>
+      {({ width, height }) => (
+        <AreaChart
+          width={width}
+          height={height}
+          data={data}
+          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient id="dailyFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#0f4c5c" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#0f4c5c" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke="rgba(15,76,92,0.08)" vertical={false} />
+          <XAxis
+            dataKey="label"
+            tick={{ fill: "#5b7580", fontSize: 11 }}
+            tickLine={false}
+            axisLine={false}
+            interval="preserveStartEnd"
+            minTickGap={36}
+          />
+          <YAxis
+            tick={{ fill: "#5b7580", fontSize: 11 }}
+            tickLine={false}
+            axisLine={false}
+            width={48}
+            tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
+          />
+          <Tooltip
+            contentStyle={tooltipStyle}
+            formatter={(value) => [formatRain(Number(value), 1), "Daily"]}
+            labelFormatter={(label) => String(label)}
+          />
+          <Area
+            type="monotone"
+            dataKey="rainfall"
+            stroke="#0f4c5c"
+            strokeWidth={2}
+            fill="url(#dailyFill)"
+            animationDuration={700}
+          />
+        </AreaChart>
+      )}
+    </ChartViewport>
+  );
+}
+
+export function DistrictCompareChart({
+  data,
+  nameA,
+  nameB,
+}: {
+  data: { label: string; a: number; b: number }[];
+  nameA: string;
+  nameB: string;
+}) {
+  return (
+    <ChartViewport>
+      {({ width, height }) => (
+        <BarChart
+          width={width}
+          height={height}
+          data={data}
+          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid stroke="rgba(15,76,92,0.08)" vertical={false} />
+          <XAxis
+            dataKey="label"
+            tick={{ fill: "#5b7580", fontSize: 11 }}
+            tickLine={false}
+            axisLine={false}
+            interval="preserveStartEnd"
+            minTickGap={24}
+          />
+          <YAxis
+            tick={{ fill: "#5b7580", fontSize: 11 }}
+            tickLine={false}
+            axisLine={false}
+            width={56}
+            tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
+          />
+          <Tooltip
+            contentStyle={tooltipStyle}
+            formatter={(value, name) => [
+              formatRain(Number(value)),
+              String(name),
+            ]}
+          />
+          <Bar
+            dataKey="a"
+            name={nameA}
+            fill="#147878"
+            radius={[6, 6, 0, 0]}
+            animationDuration={750}
+          />
+          <Bar
+            dataKey="b"
+            name={nameB}
+            fill="#c9852d"
+            radius={[6, 6, 0, 0]}
             animationDuration={750}
           />
         </BarChart>
