@@ -2,6 +2,13 @@
 
 Interactive dashboard for Telangana Surface Water hourly rainfall telemetry. Explore station, district, and time-series views built from ~72k readings across **38 stations** and **22 districts** (May 2023–December 2025).
 
+## Live demo
+
+Public tunnel (Cloudflare quick tunnel):  
+**https://empirical-educators-bus-settlement.trycloudflare.com**
+
+This `*.trycloudflare.com` link only works while the cloud agent’s tunnel session is running. When that session stops, the URL will stop resolving — run the app locally (below) for a durable view.
+
 ## Features
 
 - **Filters** — year, district, and station, with reset and scoped CSV export of the monthly series
