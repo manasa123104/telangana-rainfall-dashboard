@@ -6,7 +6,8 @@
     "dev": "next dev --port 4317 --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --port 4317 --hostname 0.0.0.0",
-    "lint": "eslint"
+    "lint": "eslint",
+    "assert:charts": "node scripts/assert-charts-visible.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -27,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "playwright": "^1.64.1"
   }
 }

@@ -5,7 +5,7 @@ Interactive dashboard for Telangana Surface Water hourly rainfall telemetry. Exp
 ## Live demo
 
 Public tunnel (Cloudflare quick tunnel):  
-**https://empirical-educators-bus-settlement.trycloudflare.com**
+**https://bracelets-grass-collectible-routing.trycloudflare.com**
 
 This `*.trycloudflare.com` link only works while the cloud agent’s tunnel session is running. When that session stops, the URL will stop resolving — run the app locally (below) for a durable view.
 
