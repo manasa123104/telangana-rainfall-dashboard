@@ -25,23 +25,23 @@ const tooltipStyle = {
 
 type SeriesPoint = { label: string; rainfall: number };
 
+const DEFAULT_CHART_SIZE = { width: 600, height: 280 };
+
 function ChartViewport({
   children,
 }: {
   children: (size: { width: number; height: number }) => ReactNode;
 }) {
-  const { ref, width, height } = useElementSize<HTMLDivElement>();
-  const ready = width > 0 && height > 0;
+  const { ref, width, height } = useElementSize<HTMLDivElement>(
+    DEFAULT_CHART_SIZE,
+  );
+  // Always mount Recharts: use measured size when available, else fallback.
+  const w = width > 0 ? width : DEFAULT_CHART_SIZE.width;
+  const h = height > 0 ? height : DEFAULT_CHART_SIZE.height;
+
   return (
     <div ref={ref} className="chart-viewport">
-      {ready ? (
-        children({ width, height })
-      ) : (
-        <div className="chart-loading" role="status" aria-live="polite">
-          <span className="chart-loading-bar" aria-hidden />
-          <span>Measuring chart…</span>
-        </div>
-      )}
+      {children({ width: w, height: h })}
     </div>
   );
 }
