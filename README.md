@@ -2,6 +2,10 @@
 
 An interactive dashboard for Telangana Surface Water rainfall telemetry. Explore **72,223 readings** across **38 stations** and **22 districts**, covering **30 May 2023–31 December 2025**.
 
+## Public dashboard
+
+Open [Telangana Rainfall Atlas](https://manasa123104.github.io/telangana-rainfall-dashboard/) to use the charts, filters, and downloads without installing anything.
+
 ## About the project
 
 Telangana Rainfall Atlas turns a large collection of hourly rainfall readings into an interactive visual overview. Instead of inspecting thousands of CSV rows, users can explore rainfall over time, compare districts, focus on individual monitoring stations, and save charts for reports or presentations.
@@ -147,4 +151,14 @@ Next.js provides the application framework, React manages interactive views, and
 
 ## Hosting
 
-The localhost address works on the computer running the app. A temporary Cloudflare quick-tunnel URL works only while its tunnel process is active; it is not a permanent hosted demo.
+The public dashboard is hosted on GitHub Pages from the `gh-pages` branch. The localhost address works only on the computer running the development server.
+
+To rebuild the static website in PowerShell:
+
+```powershell
+$env:GITHUB_PAGES = "true"
+npm run build
+Remove-Item Env:GITHUB_PAGES
+```
+
+Publish the contents of `out/` with a `.nojekyll` file to the root of `gh-pages`. The export uses `/telangana-rainfall-dashboard` as its base path. Updates to `main` require rebuilding and republishing `gh-pages`; they are not deployed automatically. Normal local builds continue to support `npm run start`.
