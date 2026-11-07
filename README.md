@@ -2,9 +2,11 @@
 
 An interactive dashboard for Telangana Surface Water rainfall telemetry. Explore **72,223 readings** across **38 stations** and **22 districts**, covering **30 May 2023–31 December 2025**.
 
-## Public dashboard
+## Live dashboard
 
-Open [Telangana Rainfall Atlas](https://manasa123104.github.io/telangana-rainfall-dashboard/) to use the charts, filters, and downloads without installing anything.
+**[Open the public Telangana Rainfall Dashboard](https://manasa123104.github.io/telangana-rainfall-dashboard/)**
+
+Anyone can use the charts, filters, and PNG/CSV downloads without signing in or installing anything. The site is hosted on GitHub Pages and remains available when the local development server is stopped.
 
 ## About the project
 
