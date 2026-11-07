@@ -7,6 +7,7 @@ import { downloadChartPng } from "@/lib/download-chart";
 type ChartPanelProps = {
   title?: string;
   description?: string;
+  exportLabels?: string;
   filename: string;
   icon?: ReactNode;
   wide?: boolean;
@@ -23,6 +24,7 @@ type ChartPanelProps = {
 export function ChartPanel({
   title,
   description,
+  exportLabels,
   filename,
   icon,
   wide = false,
@@ -42,7 +44,7 @@ export function ChartPanel({
     setBusy(true);
     setError(null);
     try {
-      await downloadChartPng(node, filename);
+      await downloadChartPng(node, filename, [title || "Rainfall chart", description, exportLabels].filter((label): label is string => Boolean(label)));
     } catch {
       setError("Download failed");
     } finally {

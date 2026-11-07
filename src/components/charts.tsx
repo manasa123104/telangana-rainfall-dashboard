@@ -75,7 +75,7 @@ export function RainfallTrendChart({ data }: { data: SeriesPoint[] }) {
             tick={{ fill: "#5b7580", fontSize: 11 }}
             tickLine={false}
             axisLine={false}
-            width={56}
+            width={90}
             tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
           />
           <Tooltip
@@ -170,7 +170,7 @@ export function HourlyPatternChart({
             tick={{ fill: "#5b7580", fontSize: 11 }}
             tickLine={false}
             axisLine={false}
-            width={48}
+            width={90}
             tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
           />
           <Tooltip
@@ -217,7 +217,7 @@ export function YearCompareChart({
             tick={{ fill: "#5b7580", fontSize: 11 }}
             tickLine={false}
             axisLine={false}
-            width={56}
+            width={90}
             tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
           />
           <Tooltip
@@ -269,7 +269,7 @@ export function DailySparklineChart({
             tick={{ fill: "#5b7580", fontSize: 11 }}
             tickLine={false}
             axisLine={false}
-            width={48}
+            width={90}
             tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
           />
           <Tooltip
@@ -322,7 +322,7 @@ export function DistrictCompareChart({
             tick={{ fill: "#5b7580", fontSize: 11 }}
             tickLine={false}
             axisLine={false}
-            width={56}
+            width={90}
             tickFormatter={(v) => formatNumber(Math.round(Number(v)))}
           />
           <Tooltip

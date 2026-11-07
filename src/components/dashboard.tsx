@@ -394,6 +394,7 @@ export function Dashboard() {
           title="Monthly rainfall trend"
           description="Cumulative mm by month for the current scope."
           filename="rainfall-monthly-trend.png"
+          exportLabels={`${scopeLabel} · ${year === "all" ? "All years" : year} · X: Month · Y: Rainfall (mm)`}
           icon={<CloudRain className="panel-icon" aria-hidden />}
           canDownload={trendSeries.length > 0}
         >
@@ -414,6 +415,7 @@ export function Dashboard() {
           title="Network daily rainfall"
           description={`Statewide daily totals for the last ${dailyWindow} days of the telemetry window.`}
           filename={`rainfall-daily-${dailyWindow}d.png`}
+          exportLabels={`Telangana SW network · Dataset ending ${summary.dateEnd} · X: Date · Y: Rainfall (mm)`}
           canDownload={showDaily && dailySeries.length > 0}
           actions={
             <>
@@ -463,6 +465,7 @@ export function Dashboard() {
           title="Year comparison"
           description="Total rainfall by calendar year."
           filename="rainfall-year-comparison.png"
+          exportLabels={`${scopeLabel} · All years · X: Year · Y: Rainfall (mm)`}
           icon={<Droplets className="panel-icon" aria-hidden />}
           canDownload={yearBars.length > 0}
         >
@@ -479,6 +482,7 @@ export function Dashboard() {
           title="Hour-of-day pattern"
           description="Average hourly rainfall across all readings."
           filename="rainfall-hour-of-day.png"
+          exportLabels="Telangana SW network · All years · X: Hour of day · Y: Average rainfall (mm)"
           icon={<RadioTower className="panel-icon" aria-hidden />}
           canDownload={hourly.length > 0}
         >
@@ -496,6 +500,7 @@ export function Dashboard() {
           title="District totals"
           description={`Top districts by cumulative rainfall${year !== "all" ? ` in ${year}` : ""}.`}
           filename="rainfall-district-totals.png"
+          exportLabels={`${year === "all" ? "All years" : year} · X: Rainfall (mm) · Y: District`}
           canDownload={districtBars.length > 0}
         >
           <div className="chart-frame chart-tall">
@@ -512,6 +517,7 @@ export function Dashboard() {
           title="Compare districts"
           description={`Side-by-side monthly rainfall for two districts${year !== "all" ? ` in ${year}` : ""}.`}
           filename={`rainfall-compare-${compareA}-${compareB}.png`}
+          exportLabels={`Teal: ${compareA} · Gold: ${compareB} · ${year === "all" ? "All years" : year} · X: Month · Y: Rainfall (mm)`}
           icon={<GitCompareArrows className="panel-icon" aria-hidden />}
           canDownload={compareSeries.length > 0 && compareA !== compareB}
           toolbar={
@@ -576,6 +582,7 @@ export function Dashboard() {
           title="Station map"
           description="Click a marker to focus that station."
           filename="rainfall-station-map.png"
+          exportLabels={`${scopeLabel} · All-time totals · Circle size: Cumulative rainfall (mm) · Position: Longitude / Latitude`}
           icon={<MapPinned className="panel-icon" aria-hidden />}
           canDownload={filteredStations.length > 0}
         >
